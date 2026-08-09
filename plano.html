@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Plano Alimentar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light dark;
+    --bg: #F7EEDD;
+    --bg-deep: #F0E4CC;
+    --surface: #FFFBF3;
+    --line: #E8DCC0;
+    --ink: #241F16;
+    --ink-soft: #6B6255;
+    --on-accent: #FFFFFF;
+    --forest: #F35B04;
+    --heading: var(--ink);
+    --rust-soft: rgba(247,184,1,0.16);
+    --rust-fg: #F7B801;
+    --olive: #F18701;
+    --olive-soft: rgba(241,135,1,0.16);
+    --radius: 18px;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg: #242220;
+      --bg-deep: #1C1A18;
+      --surface: #2C2A27;
+      --line: #3D3A36;
+      --ink: #EDE8E0;
+      --ink-soft: #A8A198;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #242220;
+    --bg-deep: #1C1A18;
+    --surface: #2C2A27;
+    --line: #3D3A36;
+    --ink: #EDE8E0;
+    --ink-soft: #A8A198;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(241,135,1,0.07), transparent 45%),
+      radial-gradient(circle at 100% 30%, rgba(247,184,1,0.06), transparent 40%);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 48px;
+  }
+
+  .wrap{ max-width: 480px; margin: 0 auto; padding: 0 16px; }
+
+  /* ---------- Header ---------- */
+  header{
+    padding: 28px 0 14px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--olive);
+    font-weight: 600;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:14px; height:1px;
+    background: var(--olive);
+    display:inline-block;
+  }
+  .header-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 30px;
+    line-height:1.08;
+    margin: 8px 0 2px;
+    color: var(--heading);
+    letter-spacing: -0.01em;
+  }
+  .theme-toggle{
+    flex-shrink:0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-soft);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .theme-toggle:hover{ border-color: var(--olive); color: var(--olive); }
+  .theme-toggle svg{ width:16px; height:16px; display:none; }
+  .theme-toggle svg.is-visible{ display:block; }
+  .sub{
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height:1.5;
+    max-width: 34ch;
+  }
+
+  /* ---------- Day toggle ---------- */
+  .day-toggle{
+    margin-top: 20px;
+    display:flex;
+    background: var(--bg-deep);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px;
+    gap:4px;
+    position: sticky;
+    top: 10px;
+    z-index: 20;
+    backdrop-filter: blur(6px);
+  }
+  .day-btn{
+    flex:1;
+    border:none;
+    background: transparent;
+    padding: 10px 8px;
+    font-family:'Inter';
+    font-weight:600;
+    font-size: 13px;
+    color: var(--ink-soft);
+    border-radius: 999px;
+    cursor:pointer;
+    transition: background .25s ease, color .25s ease, box-shadow .25s ease;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+  }
+  .day-btn svg{ width:14px; height:14px; opacity:.75; }
+  .day-btn.active{
+    background: var(--forest);
+    color: var(--on-accent);
+    box-shadow: 0 4px 14px -4px rgba(243,91,4,0.45);
+  }
+  .day-btn.active svg{ opacity:1; }
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    margin-top: 14px;
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom: 6px;
+    scrollbar-width:none;
+    position: sticky;
+    top: 62px;
+    z-index: 19;
+    padding-top: 4px;
+    padding-right: 16px;
+    padding-left: 16px;
+    margin-left: -16px;
+    -webkit-overflow-scrolling: touch;
+    cursor: grab;
+    user-select: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 24px, #000 calc(100% - 24px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 24px, #000 calc(100% - 24px), transparent 100%);
+  }
+  .tabs::-webkit-scrollbar{ display:none; }
+  .tabs.dragging{ cursor: grabbing; scroll-snap-type: none; }
+  .tabs.dragging .tab{ pointer-events: none; }
+  .tab{
+    flex: 0 0 auto;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, var(--bg), var(--bg-deep));
+    color: var(--ink-soft);
+    font-family:'Inter';
+    font-weight:600;
+    font-size: 12.5px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition: all .2s ease;
+  }
+  .tab.active{
+    background: var(--forest);
+    border-color: var(--forest);
+    color: var(--on-accent);
+  }
+
+  /* ---------- Cards ---------- */
+  main{ margin-top: 18px; display:flex; flex-direction:column; gap:16px; }
+
+  .meal-card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 18px 16px;
+    position: relative;
+    overflow: hidden;
+    animation: rise .35s ease both;
+  }
+  @keyframes rise{
+    from{ opacity:0; transform: translateY(8px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  .meal-card::before{
+    content:'';
+    position:absolute;
+    left:0; top:0; bottom:0;
+    width:4px;
+    background: var(--olive);
+  }
+  .meal-card[data-kind="workout"]::before{ background: var(--rust-fg); }
+
+  .meal-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .meal-title-row{ display:flex; align-items:center; gap:9px; }
+  .meal-icon{
+    width: 30px; height:30px;
+    border-radius: 9px;
+    background: var(--olive-soft);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .meal-card[data-kind="workout"] .meal-icon{ background: var(--rust-soft); }
+  .meal-icon svg{ width:16px; height:16px; stroke: var(--olive); }
+  .meal-card[data-kind="workout"] .meal-icon svg{ stroke: var(--rust-fg); }
+
+  .meal-name{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 18px;
+    color: var(--heading);
+    line-height:1.15;
+  }
+  .meal-time{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    letter-spacing:.03em;
+    margin-top: 1px;
+  }
+
+  .kcal-chip{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--forest);
+    color: var(--on-accent);
+    padding: 5px 9px;
+    border-radius: 8px;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+
+  .note{
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    background: var(--bg-deep);
+    border-radius: 10px;
+    padding: 9px 11px;
+    margin-top: 10px;
+    line-height:1.45;
+  }
+
+  /* sequence rail */
+  .sequence{
+    margin-top: 14px;
+    position:relative;
+  }
+  .seq-item{
+    position: relative;
+    padding-left: 26px;
+    padding-bottom: 16px;
+  }
+  .seq-item:last-child{ padding-bottom: 0; }
+  .seq-item::before{
+    content:'';
+    position:absolute;
+    left: 8px; top: 22px; bottom: -2px;
+    width: 1px;
+    background: var(--line);
+  }
+  .seq-item:last-child::before{ display:none; }
+  .seq-num{
+    position:absolute;
+    left:0; top:0;
+    width: 17px; height:17px;
+    border-radius:50%;
+    background: var(--surface);
+    border: 1.5px solid var(--olive);
+    color: var(--olive);
+    font-family:'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .meal-card[data-kind="workout"] .seq-num{ border-color: var(--rust-fg); color: var(--rust-fg); }
+
+  .seq-foods{
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height:1.4;
+  }
+  .plus{
+    color: var(--olive);
+    font-weight:700;
+    margin: 0 3px;
+  }
+  .seq-kcal{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  .swap-row{
+    margin-top: 12px;
+    display:flex;
+    gap: 8px;
+  }
+  .swap-btn{
+    flex:1;
+    border: 1px solid var(--line);
+    background: var(--bg-deep);
+    color: var(--ink-soft);
+    font-family:'Inter';
+    font-weight:600;
+    font-size: 12px;
+    padding: 8px 6px;
+    border-radius: 10px;
+    cursor:pointer;
+    transition: all .2s ease;
+  }
+  .swap-btn.active{
+    background: var(--forest);
+    border-color: var(--forest);
+    color: var(--on-accent);
+  }
+
+  .empty-state{
+    text-align:center;
+    padding: 40px 20px;
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    background: var(--surface);
+    border: 1px dashed var(--line);
+    border-radius: var(--radius);
+    line-height: 1.6;
+  }
+  .empty-state b{ color: var(--heading); font-family:'Fraunces', serif; font-weight: 600; font-size: 15px; display:block; margin-bottom:4px;}
+
+  /* ---------- Footer total ---------- */
+  .total-bar{
+    margin-top: 22px;
+    background: var(--forest);
+    border-radius: var(--radius);
+    padding: 18px;
+    color: var(--on-accent);
+  }
+  .total-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom: 10px;
+  }
+  .total-label{
+    font-size: 11.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color: rgba(255,255,255,0.75);
+    font-family:'JetBrains Mono', monospace;
+  }
+  .total-value{
+    font-family:'Fraunces', serif;
+    font-size: 26px;
+    font-weight:600;
+  }
+  .total-value span{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight:500;
+    color: rgba(255,255,255,0.75);
+  }
+  .bar-track{
+    height:6px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 999px;
+    overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;
+    background: linear-gradient(90deg, var(--olive), var(--rust-fg));
+    border-radius: 999px;
+    transition: width .4s ease;
+  }
+  .bar-caption{
+    margin-top:8px;
+    font-size:11px;
+    color: rgba(255,255,255,0.75);
+  }
+
+  footer.foot{
+    text-align:center;
+    margin-top: 20px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    opacity:.7;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="header-top">
+      <div class="eyebrow">Rotina alimentar</div>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+    </div>
+    <h1>Seu dia, em ordem</h1>
+    <p class="sub">Cada card segue a sequência certa de consumo — fibra e proteína antes, carboidrato por último.</p>
+  </header>
+
+  <div class="day-toggle">
+    <button class="day-btn active" data-day="treino">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5l11 11M4 9l0 6M20 9l0 6M2 9l0 6M22 9l0 6M7 4l-3 3v10l3 3M17 4l3 3v10l-3 3"/></svg>
+      Dia de treino
+    </button>
+    <button class="day-btn" data-day="descanso">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      Dia de descanso
+    </button>
+  </div>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <main id="main"></main>
+
+  <div class="total-bar">
+    <div class="total-top">
+      <div>
+        <div class="total-label">Total do dia</div>
+        <div class="total-value" id="totalValue">0 <span>kcal</span></div>
+      </div>
+      <div style="text-align:right">
+        <div class="total-label">Limite</div>
+        <div class="total-value" style="font-size:16px" id="capValue">2100 <span>kcal</span></div>
+      </div>
+    </div>
+    <div class="bar-track"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+    <div class="bar-caption" id="barCaption"></div>
+  </div>
+
+  <footer class="foot">montado a partir do seu plano — ajuste conforme a fome do dia</footer>
+</div>
+
+<script>
+const ICONS = {
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>',
+  plate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg>',
+  leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 019.8 4.4a17.6 17.6 0 018.6-3A17.6 17.6 0 0115 9.4a7 7 0 01-4 10.6z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>'
+};
+
+// meal definitions per day type. jantar has a protein swap (carne / figado)
+const DATA = {
+  treino: [
+    { id:'pre', kind:'workout', name:'Pré-treino', time:'antes do treino', icon:'bolt',
+      groups:[[{f:'Mamão',q:'200g',k:90}]] },
+    { id:'pos', kind:'workout', name:'Pós-treino', time:'logo após o treino', icon:'bolt',
+      groups:[
+        [{f:'Ovos',q:'3 unid. (150g)',k:220}],
+        [{f:'Iogurte natural integral',q:'200g',k:130}]
+      ] },
+    { id:'almoco', kind:'normal', name:'Almoço', time:'meio-dia', icon:'plate',
+      groups:[
+        [{f:'Salada crua',q:'alface, rúcula, tomate, pepino',k:0},{f:'Azeite extra virgem',q:'1 col. sopa',k:140}],
+        [{f:'Legumes cozidos',q:'brócolis ou couve-flor, 55g',k:20}],
+        [{f:'Carne vermelha',q:'150g',k:330}],
+        [{f:'Arroz',q:'90g',k:0},{f:'Feijão',q:'80g',k:190}]
+      ] },
+    { id:'lanche', kind:'normal', name:'Lanche da tarde', time:'meio da tarde', icon:'leaf',
+      groups:[
+        [{f:'Iogurte natural integral',q:'170g',k:110}],
+        [{f:'Banana ou manga',q:'100g',k:90}]
+      ] },
+    { id:'jantar', kind:'normal', name:'Jantar', time:'noite', icon:'moon', swap:true,
+      groups:[
+        [{f:'Salada crua',q:'alface, rúcula, tomate, pepino',k:0},{f:'Azeite extra virgem',q:'1 col. sopa',k:140}],
+        [{f:'Vegetal verde',q:'couve ou brócolis',k:20}],
+        'PROTEIN_SWAP',
+        [{f:'Batata cozida',q:'150g',k:130}]
+      ] }
+  ],
+  descanso: [
+    { id:'cafe', kind:'normal', name:'Café da manhã', time:'ao acordar', icon:'sun',
+      groups:[
+        [{f:'Ovos',q:'3 unid. (150g)',k:220}],
+        [{f:'Mamão',q:'200g',k:90}]
+      ] },
+    { id:'almoco', kind:'normal', name:'Almoço', time:'meio-dia', icon:'plate',
+      groups:[
+        [{f:'Salada crua',q:'alface, rúcula, tomate, pepino',k:0},{f:'Azeite extra virgem',q:'1 col. sopa',k:140}],
+        [{f:'Legumes cozidos',q:'brócolis ou couve-flor, 55g',k:20}],
+        [{f:'Carne vermelha',q:'150g',k:330}],
+        [{f:'Arroz',q:'90g',k:0},{f:'Feijão',q:'80g',k:190}]
+      ] },
+    { id:'lanche', kind:'normal', name:'Lanche da tarde', time:'meio da tarde', icon:'leaf',
+      groups:[
+        [{f:'Iogurte natural integral',q:'170g',k:110}],
+        [{f:'Banana ou manga',q:'100g',k:90}]
+      ] },
+    { id:'jantar', kind:'normal', name:'Jantar', time:'noite', icon:'moon', swap:true,
+      groups:[
+        [{f:'Salada crua',q:'alface, rúcula, tomate, pepino',k:0},{f:'Azeite extra virgem',q:'1 col. sopa',k:140}],
+        [{f:'Vegetal verde',q:'couve ou brócolis',k:20}],
+        'PROTEIN_SWAP',
+        [{f:'Batata cozida',q:'130g',k:113}]
+      ] }
+  ]
+};
+
+const PROTEIN = {
+  carne: [{f:'Carne vermelha',q:'150g',k:330}],
+  figado: [{f:'Fígado bovino',q:'100g · 1-2x/semana',k:135}]
+};
+
+const CAP = 2100;
+let state = { day:'treino', tab:'tudo', proteinChoice:'carne' };
+
+function groupKcal(g){ return g.reduce((s,i)=>s+i.k,0); }
+function mealKcal(meal){
+  return meal.groups.reduce((sum,g)=>{
+    if(g==='PROTEIN_SWAP') return sum + groupKcal(PROTEIN[state.proteinChoice]);
+    return sum + groupKcal(g);
+  },0);
+}
+function dayTotal(){
+  return DATA[state.day].reduce((s,m)=>s+mealKcal(m),0);
+}
+
+function renderTabs(){
+  const meals = DATA[state.day];
+  const tabsEl = document.getElementById('tabs');
+  const items = [{id:'tudo', name:'Tudo'}, ...meals.map(m=>({id:m.id, name:m.name}))];
+  tabsEl.innerHTML = items.map(it=>
+    `<button class="tab ${state.tab===it.id?'active':''}" data-tab="${it.id}">${it.name}</button>`
+  ).join('');
+  tabsEl.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ state.tab = btn.dataset.tab; render(); });
+  });
+}
+
+function renderGroupRow(g, idx){
+  const kcal = groupKcal(g);
+  const foods = g.map(i => i.q ? `${i.f} <span style="color:var(--ink-soft);font-weight:400">(${i.q})</span>` : i.f).join(' <span class="plus">+</span><br>');
+  return `
+    <div class="seq-item">
+      <div class="seq-num">${idx+1}</div>
+      <div class="seq-foods">${foods}</div>
+      ${kcal>0 ? `<div class="seq-kcal">~${kcal} kcal</div>` : ''}
+    </div>`;
+}
+
+function renderCard(meal){
+  const kcal = mealKcal(meal);
+  let rows = '';
+  let gi = 0;
+  meal.groups.forEach(g=>{
+    const actual = g==='PROTEIN_SWAP' ? PROTEIN[state.proteinChoice] : g;
+    rows += renderGroupRow(actual, gi);
+    gi++;
+  });
+
+  const swapHtml = meal.swap ? `
+    <div class="swap-row">
+      <button class="swap-btn ${state.proteinChoice==='carne'?'active':''}" data-protein="carne">Carne vermelha</button>
+      <button class="swap-btn ${state.proteinChoice==='figado'?'active':''}" data-protein="figado">Fígado (1-2x/sem)</button>
+    </div>` : '';
+
+  return `
+    <section class="meal-card" data-kind="${meal.kind}" data-meal="${meal.id}">
+      <div class="meal-head">
+        <div class="meal-title-row">
+          <div class="meal-icon">${ICONS[meal.icon]}</div>
+          <div>
+            <div class="meal-name">${meal.name}</div>
+            <div class="meal-time">${meal.time}</div>
+          </div>
+        </div>
+        <div class="kcal-chip">~${kcal} kcal</div>
+      </div>
+      <div class="sequence">${rows}</div>
+      ${swapHtml}
+    </section>`;
+}
+
+function render(){
+  renderTabs();
+  const meals = DATA[state.day];
+  const mainEl = document.getElementById('main');
+
+  let visible;
+  if(state.tab === 'tudo'){
+    visible = meals;
+  } else {
+    visible = meals.filter(m=>m.id===state.tab);
+  }
+
+  if(visible.length===0){
+    mainEl.innerHTML = `<div class="empty-state"><b>Não se aplica</b>Essa refeição não faz parte do ${state.day==='treino'?'dia de treino':'dia de descanso'}.</div>`;
+  } else {
+    mainEl.innerHTML = visible.map(renderCard).join('');
+  }
+
+  mainEl.querySelectorAll('[data-protein]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      state.proteinChoice = btn.dataset.protein;
+      render();
+      // restore scroll focus roughly
+    });
+  });
+
+  // totals
+  const total = dayTotal();
+  document.getElementById('totalValue').innerHTML = `${total} <span>kcal</span>`;
+  const pct = Math.min(100, Math.round((total/CAP)*100));
+  document.getElementById('barFill').style.width = pct+'%';
+  const remaining = CAP - total;
+  document.getElementById('barCaption').textContent = remaining >= 0
+    ? `${remaining} kcal de margem até o limite diário`
+    : `${Math.abs(remaining)} kcal acima do limite diário`;
+}
+
+(function enableDragScroll(){
+  const el = document.getElementById('tabs');
+  let isDown = false, startX = 0, startScroll = 0, moved = false;
+
+  const start = (x)=>{ isDown = true; moved = false; startX = x; startScroll = el.scrollLeft; };
+  const move = (x)=>{
+    if(!isDown) return;
+    const delta = x - startX;
+    if(Math.abs(delta) > 4){
+      if(!moved) el.classList.add('dragging');
+      moved = true;
+    }
+    if(moved) el.scrollLeft = startScroll - delta;
+  };
+  const end = ()=>{ isDown = false; el.classList.remove('dragging'); };
+
+  el.addEventListener('mousedown', e=>{ start(e.pageX); });
+  window.addEventListener('mousemove', e=>{ move(e.pageX); });
+  window.addEventListener('mouseup', end);
+
+  el.addEventListener('touchstart', e=>{ start(e.touches[0].pageX); }, { passive:true });
+  el.addEventListener('touchmove', e=>{ move(e.touches[0].pageX); }, { passive:true });
+  el.addEventListener('touchend', end);
+
+  // suppress the click that follows a drag so tabs don't switch mid-swipe
+  el.addEventListener('click', e=>{ if(moved){ e.stopPropagation(); e.preventDefault(); } }, true);
+})();
+
+document.querySelectorAll('.day-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.day-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.day = btn.dataset.day;
+    state.tab = 'tudo';
+    render();
+  });
+});
+
+(function initTheme(){
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const effectiveTheme = () => document.documentElement.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light');
+  const applyIcon = () => {
+    const theme = effectiveTheme();
+    themeToggle.querySelector('.icon-sun').classList.toggle('is-visible', theme === 'light');
+    themeToggle.querySelector('.icon-moon').classList.toggle('is-visible', theme === 'dark');
+  };
+
+  const themeToggle = document.getElementById('themeToggle');
+  const saved = localStorage.getItem('theme');
+  if(saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+  applyIcon();
+
+  themeToggle.addEventListener('click', ()=>{
+    const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    applyIcon();
+  });
+
+  mq.addEventListener('change', ()=>{
+    if(!document.documentElement.hasAttribute('data-theme')) applyIcon();
+  });
+})();
+
+render();
+</script>
+</body>
+</html>
